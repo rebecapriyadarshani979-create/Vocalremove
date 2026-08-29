@@ -20,11 +20,14 @@ jobs:
 
     - name: Unzip project files
       run: |
-        if [ -f vocalstudio.zip ]; then
-          unzip -o vocalstudio.zip
-          if [ -d "vocalstudio" ]; then
-            cp -r vocalstudio/* .
-          fi
+        ZIP_FILE=$(find . -maxdepth 1 -name "*.zip" | head -n 1)
+        if [ -n "$ZIP_FILE" ]; then
+          unzip -o "$ZIP_FILE"
+          find . -mindepth 2 -name "build.gradle*" -exec dirname {} \; | while read dir; do
+            if [ "$dir" != "." ] && [ "$dir" != "./app" ]; then
+              cp -r "$dir"/* . 2>/dev/null || true
+            fi
+          done
         fi
 
     - name: Generate debug keystore
